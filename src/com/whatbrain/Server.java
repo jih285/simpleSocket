@@ -12,9 +12,6 @@ public class Server
     ServerSocket server;
     List<room> rooms;
 
-
-
-
     public static void main(String[] args)
     {
         new Server();
@@ -22,7 +19,6 @@ public class Server
     public Server()
     {
         try{
-
             port=8080;
             clients=new ArrayList<Socket>();
             rooms=new ArrayList<room>();
@@ -33,7 +29,8 @@ public class Server
             {
                 Socket socket=server.accept();
                 clients.add(socket);
-                Mythread mythread=new Mythread(socket);
+                user newUser=new user(socket,socket.getInetAddress().toString());
+                Mythread mythread=new Mythread(newUser);
                 mythread.start();
             }
 
@@ -54,27 +51,27 @@ public class Server
     }
     class Mythread extends Thread
     {
-        Socket ssocket;
+        user myuser;
         private BufferedReader br;
         private PrintWriter pw;
         public String msg;
         public String[] words;
 
 
-        public Mythread(Socket s)
+        public Mythread(user u)
         {
-            ssocket=s;
+            myuser=u;
         }
         public void run()
         {
 
             try{
-                br = new BufferedReader(new InputStreamReader(ssocket.getInputStream()));
+                br = new BufferedReader(new InputStreamReader(myuser.getUserSocket().getInputStream()));
 
-                msg = "Hello " + ssocket.getInetAddress() + ", welcome to Ji's chat lobby.\n"
+                msg = "Hello " + myuser.getUserSocket().getInetAddress() + ", welcome to Ji's chat lobby.\n"
                         + clients.size() + " users online now.\nPlease choose a chat room or create one. "+ShowAllRooms();
 
-                sendMsgToIndividual(ssocket);
+                sendMsgToIndividual(myuser.getUserSocket());
 
 
                 boolean clientSendCommand=false;
@@ -93,21 +90,24 @@ public class Server
                         msg="room:"+words[1]+" has been created";
                         clientSendCommand=true;
                     }
-                    else if (words[0].equals("jswitch"))
+
+                    else if (words[0].equals("jjoin"))
                     {
                         boolean room_exist=false;
                         for(int i=0;i<rooms.size();i++)
                         {
                             if (rooms.get(i).getRoom_name().equals(words[1]))
                             {
-                                //delete from other room
+                                /* delete from other room
                                 for (int j=0;j<rooms.size();j++)
                                 {
                                     if(rooms.get(j).ifMemberExisit(ssocket))
                                         rooms.get(j).remove_member(ssocket);
                                 }
-                                System.out.println("you are now in chat room "+words[1]);
-                                rooms.get(i).add_member(ssocket);
+                                */
+                                System.out.println("user joined chat room "+words[1]);
+                                rooms.get(i).add_member(myuser.getUserSocket());
+                                myuser.addRoom(rooms.get(i));
                                 msg="you are now in chat room "+words[1]+"\n"+rooms.get(i).chatlog+"\n---------------------------------------chat history--------------------------------------------";
                                 room_exist=true;
                                 clientSendCommand=true;
@@ -116,14 +116,26 @@ public class Server
                         if (!room_exist)
                             System.out.println("Chat room does not exist!");
                     }
+                    else if (words[0].equals("jswitch"))
+                    {
+                        clientSendCommand=true;
+                        if (myuser.findRooms(words[1])!=null) {
+                            myuser.setCurrentRoom(myuser.findRooms(words[1]));
+                        }
+                        else{
+                            msg="You should join the room first";
+                        }
+
+
+                    }
 
                     if (clientSendCommand)
                     {
-                        sendMsgToIndividual(ssocket);
+                        sendMsgToIndividual(myuser.getUserSocket());
                     }
                     else {
-                        msg = ssocket.getInetAddress() + "said: " + msg;
-                        sendMsgWithinRoom(ssocket);
+                        msg = myuser.getName() + "said: " + msg;
+                        sendMsgWithinRoom(myuser);
                     }
 
                 }
@@ -144,56 +156,19 @@ public class Server
             {
             }
         }
-        public void sendMsgWithinRoom(Socket ss)
+        public void sendMsgWithinRoom(user u)
         {
             try{
                 System.out.println(msg);
-                for (int q=0;q<rooms.size();q++)
-                {
-                    if(rooms.get(q).ifMemberExisit(ss))
-                    {
-                        for(int w =0;w<rooms.get(q).size(); w++)
+
+                        for(int w =0;w<u.getCurrentRoom().size(); w++)
                         {
 
-                            pw=new PrintWriter(rooms.get(q).getMember(w).getOutputStream(),true);
+                            pw=new PrintWriter(u.getCurrentRoom().getMember(w).getOutputStream(),true);
                             pw.println(msg);
                             pw.flush();
-
                         }
-                        rooms.get(q).chatlog += msg+"\n";
-
-
-                    }
-
-                }
-                /*
-                if (room1.contains(ss))
-                {
-                    for(int i = room1.size() - 1; i >= 0; i--)
-                    {
-                        pw=new PrintWriter(room1.get(i).getOutputStream(),true);
-                        pw.println(msg);
-                        pw.flush();
-                    }
-                }
-                else if (room2.contains(ss))
-                {
-                    for(int i = room2.size() - 1; i >= 0; i--)
-                    {
-                        pw=new PrintWriter(room2.get(i).getOutputStream(),true);
-                        pw.println(msg);
-                        pw.flush();
-                    }
-                }
-                */
-                /*
-                for(int i = clients.size() - 1; i >= 0; i--)
-                {
-                    pw=new PrintWriter(clients.get(i).getOutputStream(),true);
-                    pw.println(msg);
-                    pw.flush();
-                }
-                */
+                        u.getCurrentRoom().chatlog += msg+"\n";
             }catch(Exception ex)
             {
             }
