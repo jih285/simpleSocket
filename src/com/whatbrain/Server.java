@@ -108,7 +108,7 @@ public class Server
                                 System.out.println("user joined chat room "+words[1]);
                                 rooms.get(i).add_member(myuser.getUserSocket());
                                 myuser.addRoom(rooms.get(i));
-                                msg="you are now in chat room "+words[1]+"\n"+rooms.get(i).chatlog+"\n---------------------------------------chat history--------------------------------------------";
+                                msg="you have join in chat room "+words[1]+"\n"+rooms.get(i).chatlog+"\n---------------------------------------chat history--------------------------------------------";
                                 room_exist=true;
                                 clientSendCommand=true;
                             }
@@ -121,12 +121,27 @@ public class Server
                         clientSendCommand=true;
                         if (myuser.findRooms(words[1])!=null) {
                             myuser.setCurrentRoom(myuser.findRooms(words[1]));
+                            msg="you can speak in room: "+words[1];
                         }
                         else{
                             msg="You should join the room first";
                         }
 
 
+                    }
+                    else if (words[0].equals("jleave"))
+                    {
+                        clientSendCommand=true;
+                        if (myuser.findRooms(words[1])!=null)
+                        {
+                            myuser.leaveRoom(words[1]);
+                            msg="you have left room: "+words[1];
+                        }
+                    }
+                    if (words[0].equals("jshowmyrooms"))
+                    {
+                        clientSendCommand=true;
+                        msg=myuser.getAllRoomnames();
                     }
 
                     if (clientSendCommand)

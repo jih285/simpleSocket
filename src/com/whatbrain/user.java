@@ -38,7 +38,7 @@ public class user {
     {
         for (int i=0;i<this.myrooms.size();i++)
         {
-            if (myrooms.get(i).getRoom_name().equals(targetRoom))
+            if (this.myrooms.get(i).getRoom_name().equals(targetRoom))
             {
                 return myrooms.get(i);
             }
@@ -48,5 +48,23 @@ public class user {
     public room getCurrentRoom()
     {
         return this.currentRoom;
+    }
+    public void leaveRoom(String rname){
+        if (this.currentRoom!=null)
+        {
+            if (this.currentRoom.getRoom_name().equals(rname))
+                this.currentRoom=null;
+        }
+        this.findRooms(rname).remove_member(this.userSocket);
+        myrooms.remove(this.findRooms(rname));
+    }
+    public String getAllRoomnames()
+    {
+        String names="";
+        for (int i=0;i<myrooms.size();i++)
+        {
+            names+=myrooms.get(i).getRoom_name()+" ";
+        }
+        return names;
     }
 }
