@@ -23,6 +23,7 @@ public class Client{
 
             BufferedReader br = new BufferedReader(new InputStreamReader(socket
                     .getInputStream()));
+
             String msg1;
             while ((msg1 = br.readLine()) != null) {
 

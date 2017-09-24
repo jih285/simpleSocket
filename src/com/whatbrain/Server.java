@@ -138,6 +138,12 @@ public class Server
                             msg="you have left room: "+words[1];
                         }
                     }
+                    else if (words[0].equals("jrename"))
+                    {
+                        clientSendCommand=true;
+                        myuser.setName(words[1]);
+                        msg="your name has been reset as "+words[1];
+                    }
                     if (words[0].equals("jshowmyrooms"))
                     {
                         clientSendCommand=true;
@@ -149,7 +155,7 @@ public class Server
                         sendMsgToIndividual(myuser.getUserSocket());
                     }
                     else {
-                        msg = myuser.getName() + "said: " + msg;
+                        msg = "["+myuser.getName() + "] from ["+myuser.getCurrentRoom().getRoom_name()+"] said: " + msg;
                         sendMsgWithinRoom(myuser);
                     }
 
