@@ -98,13 +98,6 @@ public class Server
                         {
                             if (rooms.get(i).getRoom_name().equals(words[1]))
                             {
-                                /* delete from other room
-                                for (int j=0;j<rooms.size();j++)
-                                {
-                                    if(rooms.get(j).ifMemberExisit(ssocket))
-                                        rooms.get(j).remove_member(ssocket);
-                                }
-                                */
                                 System.out.println("user joined chat room "+words[1]);
                                 rooms.get(i).add_member(myuser.getUserSocket());
                                 myuser.addRoom(rooms.get(i));
@@ -126,7 +119,6 @@ public class Server
                         else{
                             msg="You should join the room first";
                         }
-
 
                     }
                     else if (words[0].equals("jleave"))
@@ -154,10 +146,16 @@ public class Server
                     {
                         sendMsgToIndividual(myuser.getUserSocket());
                     }
-                    else {
+                    else if (myuser.getCurrentRoom()!=null)
+                    {
                         msg = "["+myuser.getName() + "] from ["+myuser.getCurrentRoom().getRoom_name()+"] said: " + msg;
                         sendMsgWithinRoom(myuser);
                     }
+                    else
+                        {
+                            msg="you should switch to a room,then say something";
+                            sendMsgToIndividual(myuser.getUserSocket());
+                        }
 
                 }
             }catch(Exception ex)
