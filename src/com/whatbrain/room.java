@@ -1,17 +1,21 @@
 package com.whatbrain;
 
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class room{
     private String room_name;
     private List<Socket> members;
     public String chatlog;
+    private Date lastUpdate;
     public room(String name){
         this.room_name=name;
         this.members= new ArrayList<Socket>();
         this.chatlog="";
+        this.lastUpdate  = new Date();
     }
     public int size(){
         return this.members.size();
@@ -32,6 +36,14 @@ public class room{
     public Socket getMember(int index){
         return this.members.get(index);
 
+    }
+    public void updateDate()
+    {
+        this.lastUpdate=new Date();
+    }
+    public Date getLastUpdate()
+    {
+        return this.lastUpdate;
     }
     public boolean ifMemberExisit(Socket member)
     {
